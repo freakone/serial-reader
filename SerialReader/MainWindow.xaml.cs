@@ -116,9 +116,8 @@ namespace WpfApplication1
             string indata = sp.ReadExisting();
             indata = indata.TrimStart(new char[]{ '|' });
             tensoValues.Clear();
-            List<string> lData = new List<string>(indata.Split(new char[] { ':' }));
+            List<string> lData = new List<string>(indata.Trim().Split(new char[] { ':' }));
             lData.RemoveAt(0);
-            lData.RemoveAt(lData.Count - 1);
             lData.ForEach(it => tensoValues.Add(it));
             tensoValues.Add(tensoValues.Sum(t => int.Parse(t)).ToString());
         }
