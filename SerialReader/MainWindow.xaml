@@ -7,10 +7,18 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
-        <Label VerticalAlignment="Top" FontSize="50" Content="{Binding Path=tensoValues[1]}"></Label>
-        <Label VerticalAlignment="Bottom" FontSize="50" Content="{Binding Path=tensoValues[0]}"></Label>
-        <Label VerticalAlignment="Top" HorizontalAlignment="Right" FontSize="50" Content="{Binding Path=tensoValues[3]}"></Label>
-        <Label VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="50" Content="{Binding Path=tensoValues[2]}"></Label>
-        <Label x:Name="label" Content="{Binding Path=tensoValues[4]}" HorizontalAlignment="Center" FontSize="50" Margin="0" VerticalAlignment="Center"/>
+        <Grid Margin="0,0,0,31">
+            <Label VerticalAlignment="Top" FontSize="50" Content="{Binding Path=tensoValues[1]}"></Label>
+            <Label VerticalAlignment="Bottom" FontSize="50" Content="{Binding Path=tensoValues[0]}"></Label>
+            <Label VerticalAlignment="Top" HorizontalAlignment="Right" FontSize="50" Content="{Binding Path=tensoValues[3]}"></Label>
+            <Label VerticalAlignment="Bottom" HorizontalAlignment="Right" FontSize="50" Content="{Binding Path=tensoValues[2]}"></Label>
+            <Label x:Name="label" Content="{Binding Path=tensoValues[4]}" HorizontalAlignment="Center" FontSize="50" Margin="0" VerticalAlignment="Center"/>
+        </Grid>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
+            <Label VerticalAlignment="Bottom" FontSize="12" Content="Calibration factor" Margin="3"></Label>
+            <TextBox Height="23" VerticalAlignment="Center"  TextWrapping="Wrap" Text="{Binding Path=calibrationFactor}" Width="60" Margin="3" />
+            <Button Content="Calibrate" Width="75" Click="Button_Click" Margin="5"/>
+        </StackPanel>
     </Grid>
+
 </Window>

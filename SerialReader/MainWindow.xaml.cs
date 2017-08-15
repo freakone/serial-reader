@@ -26,6 +26,8 @@ namespace WpfApplication1
     public partial class MainWindow : Window
     {
         public ObservableCollection<string> tensoValues { get; set; } = new ObservableCollection<string>();
+        public string calibrationFactor { get; set; } = "87";
+
         public MainWindow()
         {
             DataContext = this;
@@ -72,6 +74,8 @@ namespace WpfApplication1
                 }).ToList();
             }
         }
+        SerialPort sp;
+
         private async void worker_DoWork(object sender, DoWorkEventArgs ea)
         {
             Begin:
@@ -83,8 +87,8 @@ namespace WpfApplication1
                 if (ports.Count > 0)
                 {
                     ComPort com = ports.Single(c => c.vid.Equals("0483") && c.pid.Equals("5740")); //filter ports to specific PID and VID
+                    sp = new SerialPort(com.name);
 
-                    SerialPort sp = new SerialPort(com.name);
                     if (sp.IsOpen)
                         sp.Close();
 
@@ -110,16 +114,67 @@ namespace WpfApplication1
             goto Begin;
 
         }
+
+        private string incomingBuffer = "";
+
+        private List<string> searchForCommands()
+        {
+            List<string> cmds = new List<string>();
+
+            int start = incomingBuffer.IndexOf("|");
+            int end = incomingBuffer.IndexOf("\n");
+
+            if (start >= 0 && end >= 0)
+            {
+                if( end < start )
+                {
+                    incomingBuffer = incomingBuffer.Substring(end + 1);
+                    end = incomingBuffer.IndexOf("\n");
+                }
+
+                while (start < end && start >= 0 && end >= 0)
+                {
+                    cmds.Add(incomingBuffer.Substring(start, end - start).Trim(new char[] { '|' }));
+                    incomingBuffer = incomingBuffer.Substring(end + 1);
+
+                    start = incomingBuffer.IndexOf("|");
+                    end = incomingBuffer.IndexOf("\n");
+                }
+            }
+
+            return cmds;
+        }
+        
         private void Sp_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             SerialPort sp = (SerialPort)sender;
-            string indata = sp.ReadExisting();
-            indata = indata.TrimStart(new char[]{ '|' });
-            tensoValues.Clear();
-            List<string> lData = new List<string>(indata.Trim().Split(new char[] { ':' }));
-            lData.RemoveAt(0);
-            lData.ForEach(it => tensoValues.Add(it));
-            tensoValues.Add(tensoValues.Sum(t => int.Parse(t)).ToString());
+            incomingBuffer += sp.ReadExisting();
+
+            List<string> cmds = searchForCommands();
+
+            foreach (string command in cmds)
+            {
+                if (command.Contains(":"))
+                {
+                    tensoValues.Clear();
+                    List<string> lData = new List<string>(command.Split(new char[] { ':' }));
+                    lData.RemoveAt(0);
+                    lData.ForEach(it => tensoValues.Add(it));
+                    tensoValues.Add(tensoValues.Sum(t => int.Parse(t)).ToString());
+                }
+                else
+                {
+                    MessageBox.Show(command, "Command returns:");
+                }
+            }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (sp != null && sp.IsOpen)
+            {
+                sp.WriteLine("|cal" + calibrationFactor);
+            }
         }
     }
 }
