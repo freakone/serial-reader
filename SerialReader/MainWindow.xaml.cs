@@ -17,6 +17,7 @@ using System.ComponentModel;
 using System.Management;
 using System.Text.RegularExpressions;
 using System.Collections.ObjectModel;
+using System.Text.RegularExpressions;
 
 namespace WpfApplication1
 {
@@ -26,7 +27,9 @@ namespace WpfApplication1
     public partial class MainWindow : Window
     {
         public ObservableCollection<string> tensoValues { get; set; } = new ObservableCollection<string>();
-        public string calibrationFactor { get; set; } = "87";
+        public string calibrationFactor { get; set; } = "79";
+        public ObservableCollection<string> boardID { get; set; } = new ObservableCollection<string>();
+        System.Windows.Threading.DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
 
         public MainWindow()
         {
@@ -36,6 +39,12 @@ namespace WpfApplication1
             BackgroundWorker work = new BackgroundWorker();
             work.DoWork += worker_DoWork;
             work.RunWorkerAsync();
+
+            
+            dispatcherTimer.Tick += dispatcherTimer_Tick;
+            dispatcherTimer.Interval = new TimeSpan(0, 1, 0);
+            dispatcherTimer.Start();
+
         }
 
         struct ComPort // custom struct with our desired values
@@ -95,6 +104,7 @@ namespace WpfApplication1
                     sp.Open();
                     sp.DataReceived += Sp_DataReceived;
 
+                    sp.WriteLine("|id");
 
                     while (true)
                     {
@@ -106,6 +116,7 @@ namespace WpfApplication1
             catch(Exception ex)
             {
                 Console.WriteLine(ex.ToString());
+                boardID.Clear();
                 await Task.Delay(1000);
                 goto Begin;
             }
@@ -144,7 +155,8 @@ namespace WpfApplication1
 
             return cmds;
         }
-        
+
+        Regex r = new Regex(@"([A-F0-9]+)", RegexOptions.IgnoreCase);
         private void Sp_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             SerialPort sp = (SerialPort)sender;
@@ -160,11 +172,19 @@ namespace WpfApplication1
                     List<string> lData = new List<string>(command.Split(new char[] { ':' }));
                     lData.RemoveAt(0);
                     lData.ForEach(it => tensoValues.Add(it));
-                    tensoValues.Add(tensoValues.Sum(t => int.Parse(t)).ToString());
+                    tensoValues.Add(tensoValues.Sum(t => Convert.ToInt32(t, 16)).ToString());
                 }
                 else
                 {
-                    MessageBox.Show(command, "Command returns:");
+                    if(r.Match(command).Success)
+                    {
+                        boardID.Clear();
+                        boardID.Add("ID: " + command.Substring(command.Length - 5));
+                    }
+                    else
+                    {
+                        MessageBox.Show(command, "Command returns:");
+                    }
                 }
             }
         }
@@ -174,6 +194,22 @@ namespace WpfApplication1
             if (sp != null && sp.IsOpen)
             {
                 sp.WriteLine("|cal" + calibrationFactor);
+            }
+        }
+
+        private void TextBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            if(e.Key == Key.Enter)
+            {
+                Button_Click(this, null);
+            }
+        }
+
+        private void dispatcherTimer_Tick(object sender, EventArgs e)
+        {
+            if (tensoValues.Count > 4)
+            {
+                textBoxLog.Text += DateTime.Now.ToLongTimeString() + ";" + tensoValues[4] + "\r\n" ;
             }
         }
     }
