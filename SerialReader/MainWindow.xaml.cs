@@ -172,7 +172,7 @@ namespace WpfApplication1
                     List<string> lData = new List<string>(command.Split(new char[] { ':' }));
                     lData.RemoveAt(0);
                     lData.ForEach(it => tensoValues.Add(it));
-                    tensoValues.Add(tensoValues.Sum(t => Convert.ToInt32(t, 16)).ToString());
+                    tensoValues.Add(tensoValues.Sum(t => int.Parse(t)).ToString());
                 }
                 else
                 {
