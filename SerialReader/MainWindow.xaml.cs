@@ -85,17 +85,19 @@ namespace WpfApplication1
         }
         SerialPort sp;
 
+        static int idx = 0;
         private async void worker_DoWork(object sender, DoWorkEventArgs ea)
         {
-            Begin:
+        Begin:
 
             List<ComPort> ports = GetSerialPorts();
-            
+            ports = ports.Where(c => c.vid.Equals("0483") && c.pid.Equals("5740")).ToList();
             try
             {
                 if (ports.Count > 0)
                 {
-                    ComPort com = ports.Single(c => c.vid.Equals("0483") && c.pid.Equals("5740")); //filter ports to specific PID and VID
+                    ComPort com = ports[idx]; //filter ports to specific PID and VID
+
                     sp = new SerialPort(com.name);
 
                     if (sp.IsOpen)
@@ -115,6 +117,9 @@ namespace WpfApplication1
             }
             catch(Exception ex)
             {
+                idx++;
+                if (idx > ports.Count - 1)
+                    idx = 0;
                 Console.WriteLine(ex.ToString());
                 boardID.Clear();
                 await Task.Delay(1000);
