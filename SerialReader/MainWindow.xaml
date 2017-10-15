@@ -18,8 +18,9 @@
             <TextBox Height="278" Margin="0,10,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" VerticalScrollBarVisibility="Visible" Name="textBoxLog"/>
         </Grid>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
-            <Label VerticalAlignment="Bottom" FontSize="12" Content="Calibration factor" Margin="3"></Label>
-            <TextBox Height="23" VerticalAlignment="Center"  TextWrapping="Wrap" Text="{Binding Path=calibrationFactor}" Width="60" Margin="3" KeyUp="TextBox_KeyUp" />
+            <Label VerticalAlignment="Bottom" FontSize="12" Content="Real Weigth" Margin="3"></Label>
+            <TextBox Height="24" VerticalAlignment="Bottom"  TextWrapping="Wrap" Text="{Binding Path=realValue}" Width="36" Margin="3" KeyUp="TextBox_KeyUp" />
+            <Label VerticalAlignment="Bottom" FontSize="12" Content="kg" Margin="3"/>
             <Button Content="Calibrate" Width="75" Click="Button_Click" Margin="5"/>
             <Label Height="23" VerticalAlignment="Center" Content="{Binding Path=boardID[0]}" Width="120" Margin="3" />
 

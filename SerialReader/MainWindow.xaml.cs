@@ -18,6 +18,7 @@ using System.Management;
 using System.Text.RegularExpressions;
 using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
+using System.Globalization;
 
 namespace WpfApplication1
 {
@@ -27,7 +28,7 @@ namespace WpfApplication1
     public partial class MainWindow : Window
     {
         public ObservableCollection<string> tensoValues { get; set; } = new ObservableCollection<string>();
-        public string calibrationFactor { get; set; } = "79";
+        public string realValue { get; set; } = "20.00";
         public ObservableCollection<string> boardID { get; set; } = new ObservableCollection<string>();
         System.Windows.Threading.DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
 
@@ -198,7 +199,13 @@ namespace WpfApplication1
         {
             if (sp != null && sp.IsOpen)
             {
-                sp.WriteLine("|cal" + calibrationFactor);
+                if (Double.Parse(tensoValues[4]) != 0)
+                {
+                    int calibrationFactor = (Int32)(100000 * Double.Parse(realValue, CultureInfo.InvariantCulture) / Double.Parse(tensoValues[4]));
+                    String command = "|cal" + calibrationFactor.ToString("0000");
+                    sp.WriteLine(command);
+                }
+                else MessageBox.Show("ERROR: Measurement has to be greater than 0!");
             }
         }
 
