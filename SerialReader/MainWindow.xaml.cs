@@ -201,8 +201,9 @@ namespace WpfApplication1
             {
                 if (Double.Parse(tensoValues[4]) != 0)
                 {
-                    Double calibrationFactor = (Int32)(100000 * Double.Parse(realValue, CultureInfo.InvariantCulture) / Double.Parse(tensoValues[4]));
-                    sp.WriteLine("|cal" + realValue);
+                    int calibrationFactor = (Int32)(100000 * Double.Parse(realValue, CultureInfo.InvariantCulture) / Double.Parse(tensoValues[4]));
+                    String command = "|cal" + calibrationFactor.ToString("0000");
+                    sp.WriteLine(command);
                 }
                 else MessageBox.Show("ERROR: Measurement has to be greater than 0!");
             }
